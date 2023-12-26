@@ -1,8 +1,9 @@
-use std::fs::File;
 use std::io::{BufRead, BufReader};
+use super::utils;
 
 pub fn day1() {
-  let lines = read_file("src/adventofcode/example1.txt");
+  println!("day1");
+  let lines = utils::read_file("src/adventofcode/example1.txt");
   let result = process_line(&lines);
   println!("{:?}", result);
 }
@@ -19,11 +20,6 @@ fn process_line(lines: &Vec<String>) -> Vec<String> {
   .collect()
 }
 
-pub fn read_file(filename: &str) -> Vec<String> {
-  let file = File::open(filename).unwrap();
-  let reader = BufReader::new(file);
-  reader.lines().map(|l| l.unwrap()).collect()
-}
 
 #[cfg(test)]
 mod tests {
