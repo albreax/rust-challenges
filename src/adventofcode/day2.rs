@@ -27,13 +27,11 @@ fn line_number(lines: &Vec<String>) -> Vec<u8> {
     let parts = line_to_parts(line);
     let game:u8 = parts[1].replace(':',"").parse().unwrap();
     
-    let mut num:u8 = 0;
-    let is_valid = parts.iter().skip(2).fold(true, |acc, p|{
+    let (is_valid, _) = parts.iter().skip(2).fold((true, 0), |(is_valid,num), p|{
       let part = clean_part(p);
 
       if let Some(n) = part.parse().ok() {
-        num = n;
-        return acc;
+        return (is_valid, n);
       }
 
       match  
@@ -41,11 +39,11 @@ fn line_number(lines: &Vec<String>) -> Vec<u8> {
           part == "green" && num > GREEN || 
           part == "blue" && num > BLUE 
       {
-        true => return false,
-        false => return acc,
+        true => return (false, num),
+        false => return (is_valid, num),
       }
     });
-    
+
     match is_valid {
         true => game,
         false => 0,
@@ -57,20 +55,20 @@ fn line_power(lines: &Vec<String>) -> Vec<u32> {
   lines.iter().map(|line| {
     let parts = line_to_parts(line);
     
-    let mut num:u8 = 0;
-
-    let (r, g, b) = parts.iter().skip(2).fold((0 , 0, 0), |acc, p| {
+    
+    let (r, g, b, _) = parts.iter().skip(2).fold((0, 0, 0, 0), |(r, g, b, n), p| {
       let part = clean_part(p);
       
       if let Some(n) = part.parse().ok() {
-        num = n;
-        return acc;
-      } 
+        return (r, g, b, n);
+      }
+
+      let acc = (r, g, b, n);
 
       match part.as_str() {
-        "red" => if acc.0 < num { (num, acc.1, acc.2) } else { acc },
-        "green" => if acc.1 < num { (acc.0, num, acc.2) } else { acc },
-        "blue" => if acc.2 < num { (acc.0, acc.1, num) } else { acc },
+        "red" => if r < n { (n, g, b, 0) } else { acc },
+        "green" => if g < n { (r, n, b, 0) } else { acc },
+        "blue" => if b < n { (r, g, n, 0) } else { acc },
         _ => panic!("Invalid color")
       }
     });
